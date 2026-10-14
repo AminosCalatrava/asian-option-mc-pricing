@@ -6,9 +6,6 @@ Independent quantitative project on Asian option pricing using Monte Carlo simul
 
 This repository implements a vectorized Python pricing engine for **discrete arithmetic Asian options** under the Black-Scholes-Merton framework, accompanied by a formal mathematical research note written in $\LaTeX$.
 
-📄 **[Click here to read the full Quantitative Research Note (PDF)](./Asian_Option_Pricing_Paper.pdf)**
-
----
 
 ## 🎯 Overview
 
