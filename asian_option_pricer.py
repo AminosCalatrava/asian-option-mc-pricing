@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import norm
 
-# Academic publication plot styling
 plt.rcParams.update({
     "font.family": "serif",
     "font.size": 11,
@@ -13,8 +12,11 @@ plt.rcParams.update({
 })
 
 
+
+
+
 def closed_form_geometric_asian_call(S0, K, r, sigma, T, m):
-  """Computes the exact analytical price of a discrete Geometric Asian Call."""
+  """Computes the exact analytical price of a discrete Geometric Asian Call"""
   sigma_tilde = sigma * np.sqrt((m + 1) * (2 * m + 1) / (6 * m**2))
   r_tilde = (r - 0.5 * sigma**2) * ((m + 1) / (2 * m)) + 0.5 * sigma_tilde**2
 
@@ -30,33 +32,27 @@ def closed_form_geometric_asian_call(S0, K, r, sigma, T, m):
 
 
 def simulate_asian_options(S0, K, r, sigma, T, m, N, seed=42):
-  """Simulates GBM paths and computes Standard MC, Antithetic, and Control Variate estimators."""
+  """Simulates GBM paths and computes Standard MC, Antithetic, and Control Variate estimators"""
   np.random.seed(seed)
   dt = T / m
 
-  # Standard normal shocks (N x m)
   Z = np.random.standard_normal((N, m))
 
-  # Primary paths
   log_returns = (r - 0.5 * sigma**2) * dt + sigma * np.sqrt(dt) * Z
   S_paths = S0 * np.exp(np.cumsum(log_returns, axis=1))
 
-  # Antithetic paths (-Z)
   log_returns_anti = (r - 0.5 * sigma**2) * dt - sigma * np.sqrt(dt) * Z
   S_paths_anti = S0 * np.exp(np.cumsum(log_returns_anti, axis=1))
 
-  # Discounted payoffs: Arithmetic (Y) and Geometric (X)
   A_T = np.mean(S_paths, axis=1)
   Y = np.exp(-r * T) * np.maximum(A_T - K, 0)
 
   G_T = np.exp(np.mean(np.log(S_paths), axis=1))
   X = np.exp(-r * T) * np.maximum(G_T - K, 0)
 
-  # Antithetic estimator
   A_T_anti = np.mean(S_paths_anti, axis=1)
   Y_anti_pair = 0.5 * (Y + np.exp(-r * T) * np.maximum(A_T_anti - K, 0))
 
-  # Control Variate estimator
   C_G_exact = closed_form_geometric_asian_call(S0, K, r, sigma, T, m)
   cov_matrix = np.cov(X, Y)
   beta_opt = cov_matrix[0, 1] / cov_matrix[0, 0]
@@ -68,7 +64,7 @@ def simulate_asian_options(S0, K, r, sigma, T, m, N, seed=42):
 
 
 if __name__ == "__main__":
-  # Market parameters
+
   S0, K = 100.0, 100.0
   r, sigma, T = 0.05, 0.20, 1.0
   m, N = 252, 100000
@@ -77,7 +73,6 @@ if __name__ == "__main__":
       S0, K, r, sigma, T, m, N
   )
 
-  # Print summary statistics
   for name, sample in [
       ("Standard MC", Y),
       ("Antithetic Variates", Y_anti),
@@ -91,10 +86,8 @@ if __name__ == "__main__":
         f" [{mean-1.96*se:.4f}, {mean+1.96*se:.4f}] | VRF: {vrf:.1f}x"
     )
 
-  # Generate dual plot for the LaTeX paper
   fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
 
-  # Plot 1: Sample GBM paths
   time_grid = np.linspace(T / m, T, m)
   for i in range(15):
     ax1.plot(time_grid, S_paths[i], alpha=0.5, lw=1)
@@ -107,7 +100,6 @@ if __name__ == "__main__":
   ax1.legend(loc="upper left")
   ax1.grid(True, alpha=0.3)
 
-  # Plot 2: Estimator convergence
   n_grid = np.arange(500, N + 1, 500)
   cum_mc = np.cumsum(Y)[n_grid - 1] / n_grid
   cum_anti = np.cumsum(Y_anti)[n_grid - 1] / n_grid
