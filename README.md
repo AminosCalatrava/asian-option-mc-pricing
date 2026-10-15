@@ -38,6 +38,18 @@ Because the arithmetic average of log-normal random variables lacks a closed-for
 
 ## 🚀 Usage
 
+## 📊 Numerical Results ($N = 100,000$ total path evaluations, `seed = 42`)
+
+**Market Parameters:** $S_0 = 100$, $K = 100$, $r = 5\%$, $\sigma = 20\%$, $T = 1.0\text{ yr}$, $m = 252\text{ steps}$.
+* **Exact Discrete Geometric Call ($C_G$):** `5.5664` ($\widetilde{\sigma} = 0.11581$, $\widetilde{r} = 0.02177$)
+* **Turnbull-Wakeman Analytical Benchmark ($C_{\text{TW}}$):** `5.7850`
+* **Pilot Control Variate Coefficient ($\hat{\beta}^*$, $N_{\text{pilot}} = 10,000$):** `1.0414` (Out-of-sample correlation $\hat{\rho}_{X,Y} = 0.999212$)
+
+| Estimation Method | Estimated Price | Standard Error | 95% Confidence Interval | Equal-Budget VRF | CPU Time | Time-Adjusted Gain |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| Standard MC ($N$ paths) | `5.7888` | `0.0254` | `[5.7391, 5.8385]` | **1.0x** | `0.68s` | **1.0x** |
+| Antithetic ($N/2$ pairs) | `5.7924` | `0.0178` | `[5.7575, 5.8273]` | **2.0x** | `0.70s` | **2.0x** |
+| **Control Variate ($N$ paths)** | **`5.7830`** | **`0.0010`** | **`[5.7810, 5.7850]`** | **634.5x** | `0.99s` | **435.8x** |
 1. Install dependencies:
 ```bash
 pip install -r requirements.txt
