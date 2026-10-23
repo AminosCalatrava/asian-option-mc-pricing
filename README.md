@@ -1,5 +1,5 @@
 # asian-option-mc-pricing
-Independent quantitative project on Asian option pricing using Monte Carlo simulation, variance reduction techniques (control variates), and comprehensive mathematical documentation written in
+Independent quantitative project on Asian option pricing using Monte Carlo simulation, variance reduction techniques (control variates), and comprehensive mathematical documentation written in LaTeX
 
 
 # Exotic Option Pricing: Monte Carlo Simulation & Control Variate Variance Reduction
