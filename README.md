@@ -1,10 +1,9 @@
-# asian-option-mc-pricing
-Independent quantitative project on Asian option pricing using Monte Carlo simulation, variance reduction techniques (control variates), and comprehensive mathematical documentation written in LaTeX
+
 
 
 # Exotic Option Pricing: Monte Carlo Simulation & Control Variate Variance Reduction
 
-This repository implements a vectorized Python pricing engine for **discrete arithmetic Asian options** under the Black-Scholes-Merton framework, accompanied by a formal mathematical research note written in $\LaTeX$.
+This repository implements a vectorized Python pricing engine for **discrete arithmetic Asian options** under the Black-Scholes-Merton framework, accompanied by a formal mathematical research note written in LaTeX$.
 
 
 ## 🎯 Overview
