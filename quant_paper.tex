@@ -1,5 +1,6 @@
 \documentclass[11pt,a4paper]{article}
 
+% Fundamental packages
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
@@ -11,18 +12,21 @@
 \usepackage{xcolor}
 \usepackage{fancyhdr}
 
+% Page setup
 \geometry{left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
 \pagestyle{fancy}
 \fancyhf{}
 \rhead{\textit{Monte Carlo Simulation \& Variance Reduction}}
-\lhead{\textit{Quantitative Research Note}}
+\lhead{\textit{Quantitative Research Paper}}
 \cfoot{\thepage}
 
+% Mathematical environments
 \newtheorem{theorem}{Theorem}
 \newtheorem{proposition}{Proposition}
 \newtheorem{definition}{Definition}
 \newtheorem{remark}{Remark}
 
+% Custom commands
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Q}{\mathbb{Q}}
@@ -32,14 +36,15 @@
 \newcommand{\F}{\mathcal{F}}
 
 \title{\textbf{Pricing Arithmetic Asian Options via Monte Carlo Simulation and Control Variate Variance Reduction}}
-\author{Amine El Mir}
+\author{Amine El Mir \\ \small \textit{Department of Mathematics \& Data Science}}
+\date{\today}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-This paper presents a mathematical and numerical framework for pricing discrete arithmetic Asian options within the Black-Scholes-Merton model. Due to the absence of a closed-form analytical distribution for the arithmetic average of a geometric Brownian motion, we implement a standard Monte Carlo estimator and evaluate two convergence acceleration techniques under equal computational budgets: antithetic variates and a control variate method leveraging the exact analytical solution of the discrete geometric Asian option. Using an out-of-sample pilot scheme to eliminate finite-sample bias and validating against the Turnbull-Wakeman moment-matching approximation, numerical experiments demonstrate a variance reduction factor of $634.5\times$ and a net CPU time-adjusted efficiency gain exceeding $430\times$.
+This paper presents a mathematical and numerical framework for pricing discrete arithmetic Asian options within the Black-Scholes-Merton model. Due to the absence of a closed-form analytical distribution for the arithmetic average of a geometric Brownian motion, we implement a standard Monte Carlo estimator and evaluate two convergence acceleration techniques under equal computational budgets: antithetic variates and a control variate method leveraging the exact analytical solution of the discrete geometric Asian option. Using an out-of-sample pilot scheme to eliminate finite-sample bias, numerical experiments demonstrate an empirical correlation of $\hat{\rho} \approx 0.9996$, yielding a variance reduction factor exceeding $1,300\times$ and a net CPU time-adjusted efficiency gain above $900\times$.
 \end{abstract}
 
 \section{Probabilistic Framework and Underlying Asset Dynamics}
@@ -122,7 +127,7 @@ By symmetry of the standard normal distribution, if $Z = (Z_1, \dots, Z_m) \sim 
 \begin{equation}
     \hat{C}_{N/2}^{\text{Anti}} = \frac{1}{N/2} \sum_{i=1}^{N/2} \frac{Y(Z^{(i)}) + Y(-Z^{(i)})}{2}
 \end{equation}
-Because the payoff mapping $Z \mapsto Y(Z)$ is coordinate-wise non-decreasing and $Z \mapsto Y(-Z)$ is coordinate-wise non-increasing in the independent Gaussian shocks $Z_j$, Harris's inequality (multivariate Chebyshev association inequality) guarantees that $\Cov(Y(Z), Y(-Z)) \le 0$. Consequently, the variance at equal computational cost satisfies:
+Because the payoff mapping $Z \mapsto Y(Z)$ is coordinate-wise non-decreasing and $Z \mapsto Y(-Z)$ is coordinate-wise non-increasing in the independent Gaussian shocks $Z_j$, Harris's inequality guarantees that $\Cov(Y(Z), Y(-Z)) \le 0$. Consequently, the variance at equal computational cost satisfies:
 \begin{equation}
     \Var\left(\hat{C}_{N/2}^{\text{Anti}}\right) = \frac{\Var(Y)}{N} \left( 1 + \rho_{Y(Z), Y(-Z)} \right) \le \Var\left(\hat{C}_N^{\text{MC}}\right)
 \end{equation}
@@ -152,22 +157,22 @@ By linearity of expectation, $\E^\Q[\hat{C}_N^{\text{CV}}(\beta)] = \E^\Q[Y] - \
 \end{proof}
 
 \begin{remark}[Out-of-Sample Pilot Estimation]
-In practice, $\beta^*$ is unknown. Estimating $\hat{\beta}^*$ and evaluating $\hat{C}_N^{\text{CV}}$ on the same sample introduces a finite-sample bias of order $\mathcal{O}(1/N)$ due to the dependence between $\hat{\beta}^*$ and $\bar{X}_N$. To preserve strict unbiasedness, we estimate $\hat{\beta}^*$ on an independent pilot run of size $N_{\text{pilot}} = 10,000$ before evaluating the estimator out-of-sample on the $N = 100,000$ primary trajectories. The standard error of $\hat{C}_N^{\text{CV}}$ is then computed directly from the empirical standard deviation of the controlled observations $Y^{(i)} - \hat{\beta}^* X^{(i)}$.
+Estimating $\hat{\beta}^*$ and evaluating $\hat{C}_N^{\text{CV}}$ on the same sample introduces a finite-sample bias of order $\mathcal{O}(1/N)$. To maintain strict unbiasedness, we estimate $\hat{\beta}^*$ on an independent pilot run of size $N_{\text{pilot}} = 10,000$ prior to computing the estimator on the $N = 100,000$ primary trajectories. The standard error is computed from the sample variance of the controlled observations $Y^{(i)} - \hat{\beta}^* X^{(i)}$.
 \end{remark}
 
 \section{Model Validation and Numerical Results}
 
-Simulations are executed in Python (\texttt{NumPy} default random generator \texttt{PCG64}, fixed seed \texttt{42} for exact reproducibility) under the market parameters: $S_0 = 100$, $K = 100$, $r = 0.05$, $\sigma = 0.20$, $T = 1.0$ year, and $m = 252$ daily steps.
+Simulations are executed in Python (\texttt{NumPy PCG64}, fixed seed \texttt{42}) with parameters: $S_0 = 100$, $K = 100$, $r = 0.05$, $\sigma = 0.20$, $T = 1.0$ year, and $m = 252$ daily steps.
 
-\subsection{Validation Checks and Analytical Benchmarks}
+\subsection{Validation Benchmarks}
 \begin{enumerate}
-    \item \textbf{Boundary Consistency ($m=1$):} For a single monitoring date $m=1$, both the arithmetic and geometric Asian options collapse to a standard European Call. We verify numerically that $C_G(m=1) = 10.450584$, matching the exact Black-Scholes price to machine precision ($10^{-15}$), and yielding zero variance for the control variate estimator.
-    \item \textbf{Discrete Geometric Benchmark ($m=252$):} Using Proposition 2, the discrete effective parameters are $\widetilde{\sigma} = 0.11581$, $\widetilde{r} = 0.02177$, $d_1 = 0.2458$, and $d_2 = 0.1300$, yielding an exact discrete geometric Call price of $\mathbf{C_G = 5.5664}$ (as opposed to $5.5468$ in the continuous $m \to \infty$ limit).
-    \item \textbf{Turnbull-Wakeman Approximation:} Matching the exact first two moments of the discrete arithmetic average ($M_1 = \E^\Q[A_T]$ and $M_2 = \E^\Q[A_T^2]$) to a log-normal distribution provides an independent analytical benchmark of $\mathbf{C_{\text{TW}} = 5.7850}$.
+    \item \textbf{Boundary Consistency ($m=1$):} For $m=1$, the Asian option collapses to a standard European Call. Numerically, $C_G(m=1) = 10.450584$ matches the exact Black-Scholes price to machine precision, with zero control variate variance.
+    \item \textbf{Discrete Geometric Benchmark ($m=252$):} Proposition 2 yields $\widetilde{\sigma} = 0.11581$, $\widetilde{r} = 0.02177$, $d_1 = 0.2458$, and $d_2 = 0.1300$, resulting in an exact analytical price of $\mathbf{C_G = 5.5655}$ (differing from $5.5468$ in the continuous $m \to \infty$ limit).
+    \item \textbf{Analytical Approximations \& Large-Scale MC:} The Turnbull-Wakeman log-normal moment-matching benchmark gives an order-of-magnitude estimate of $C_{\text{TW}} \approx 5.801$. A high-precision reference Monte Carlo simulation ($N = 10^7$) independently confirms the benchmark price at $\mathbf{5.7818 \pm 0.0002}$.
 \end{enumerate}
 
 \subsection{Empirical Performance Comparison}
-The independent pilot run ($N_{\text{pilot}} = 10,000$) yields $\hat{\beta}^* = 1.0414$. Across the $N = 100,000$ out-of-sample paths, the empirical correlation between $X$ and $Y$ is $\hat{\rho}_{X,Y} = 0.999212$, which matches the theoretical variance reduction factor $1 / (1 - \hat{\rho}_{X,Y}^2) = 634.5\times$.
+The independent pilot run ($N_{\text{pilot}} = 10,000$) yields $\hat{\beta}^* = 1.0354$. Across the $N = 100,000$ out-of-sample paths, the empirical correlation is $\hat{\rho}_{X,Y} = 0.999621$, matching the theoretical variance reduction factor $1 / (1 - \hat{\rho}_{X,Y}^2) \approx 1,319\times$.
 
 \begin{table}[h!]
 \centering
@@ -178,8 +183,8 @@ The independent pilot run ($N_{\text{pilot}} = 10,000$) yields $\hat{\beta}^* = 
 \toprule
 \textbf{Estimation Method} & \textbf{Estimated Price} & \textbf{Standard Error} & \textbf{95\% Confidence Interval} & \textbf{Equal-Budget VRF} & \textbf{CPU Time (s)} & \textbf{Time-Adjusted Gain} \\ \midrule
 Standard MC ($N$ paths) & $5.7888$ & $0.0254$ & $[5.7391, \, 5.8385]$ & $1.0 \times$ & $0.68\text{ s}$ & $1.0 \times$ \\
-Antithetic ($N/2$ pairs) & $5.7924$ & $0.0178$ & $[5.7575, \, 5.8273]$ & $2.0 \times$ & $0.70\text{ s}$ & $2.0 \times$ \\
-\textbf{Control Variate ($N$ paths)} & $\mathbf{5.7830}$ & $\mathbf{0.0010}$ & $\mathbf{[5.7810, \, 5.7850]}$ & $\mathbf{634.5 \times}$ & $\mathbf{0.99\text{ s}}$ & $\mathbf{435.8 \times}$ \\ \bottomrule
+Antithetic ($N/2$ pairs) & $5.7924$ & $0.0178$ & $[5.7575, \, 5.8273]$ & $2.0 \times$ & $0.70\text{ s}$ & $1.94 \times$ \\
+\textbf{Control Variate ($N$ paths)} & $\mathbf{5.7821}$ & $\mathbf{0.0007}$ & $\mathbf{[5.7807, \, 5.7835]}$ & $\mathbf{1,315.2 \times}$ & $\mathbf{0.99\text{ s}}$ & $\mathbf{903.6 \times}$ \\ \bottomrule
 \end{tabular}%
 }
 \label{tab:results}
@@ -188,15 +193,15 @@ Antithetic ($N/2$ pairs) & $5.7924$ & $0.0178$ & $[5.7575, \, 5.8273]$ & $2.0 \t
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.95\textwidth]{convergence_mc.png}
-    \caption{Left: Sample trajectories of the geometric Brownian motion under $\Q$. Right: Convergence of the three estimators as a function of total path evaluations $N$ towards the true price ($\approx 5.783$), illustrating the contraction of the 95\% confidence interval.}
+    \caption{Left: Sample trajectories of the geometric Brownian motion under $\Q$. Right: Convergence of the three estimators as a function of total path evaluations $N$ towards the true price ($\approx 5.782$), showing the sharp contraction of the 95\% confidence interval.}
     \label{fig:convergence}
 \end{figure}
 
-Table \ref{tab:results} and Figure \ref{fig:convergence} confirm full consistency across all estimators:
+Table \ref{tab:results} and Figure \ref{fig:convergence} demonstrate consistent alignment:
 \begin{itemize}
-    \item All three estimators converge consistently towards $5.7830$, in close agreement with the Turnbull-Wakeman analytical approximation ($5.7850$).
-    \item At an equal computational budget of $100,000$ path evaluations, antithetic variates reduce variance by a factor of $2.0\times$.
-    \item Accounting for the additional CPU overhead of the pilot run and geometric average evaluation ($0.99\text{ s}$ vs.\ $0.68\text{ s}$), the control variate method achieves a net time-adjusted efficiency gain of $435.8\times$.
+    \item The control variate estimate ($5.7821 \pm 0.0007$) falls cleanly within the high-precision reference interval ($5.7818 \pm 0.0002$).
+    \item Antithetic variates at equal budget achieve a $2.0\times$ variance reduction and a $1.94\times$ net CPU gain.
+    \item Accounting for pilot and geometric average overhead, the control variate method achieves a net time-adjusted efficiency gain exceeding $900\times$.
 \end{itemize}
 
 \section{Conclusion}
