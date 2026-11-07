@@ -16,7 +16,7 @@ Because the arithmetic average of log-normal random variables lacks a closed-for
 1. **Antithetic Variates** (exploiting Gaussian symmetry and the FKG inequality).
 2. **Control Variates** leveraging the exact closed-form analytical solution of the **Geometric Asian Call**, whose payoff exhibits a $>99.9\%$ correlation with the arithmetic payoff.
 
-----
+---
 
 ## 📊 Numerical Results ($N = 100,000$ total path evaluations, `seed = 42`)
 
